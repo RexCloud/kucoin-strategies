@@ -1,0 +1,18 @@
+[package]
+name = "kucoin-strategies"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.93"
+base64 = "0.22.1"
+hmac = "0.12.1"
+reqwest = { version = "0.12.9", features = ["json"] }
+serde = { version = "1.0.215", features = ["derive"] }
+serde_json = "1.0.133"
+sha2 = "0.10.8"
+teloxide = { version = "0.13.0", features = ["macros"] }
+tokio = { version = "1.41.1", features = ["macros", "rt-multi-thread"] }
+tracing = "0.1.41"
+tracing-subscriber = "0.3.18"
+uuid = "1.13.1"

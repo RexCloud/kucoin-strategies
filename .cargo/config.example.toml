@@ -1,0 +1,7 @@
+[env]
+BOT_TOKEN = ""
+USER_ID = ""
+API_KEY = ""
+API_SECRET = ""
+API_PASSPHRASE = ""
+API_KEY_VERSION = ""
