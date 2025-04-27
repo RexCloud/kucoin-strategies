@@ -81,23 +81,11 @@ pub async fn receive_number(
                 let index = data.parse::<usize>().unwrap() - 1;
 
                 match strategy.actions().get(index) {
-                    Some(action) => {
-                        let mut inline_keyboard = [vec![], vec![DELETE_ACTION, BACK_TO_ACTIONS]];
-
-                        if index > 0 {
-                            inline_keyboard[0].push(MOVE_UP);
-                        }
-
-                        if index < strategy.actions().len() - 1 {
-                            inline_keyboard[0].push(MOVE_DOWN);
-                        }
-
-                        (
-                            format!("{}: {}", data, action),
-                            InlineKeyboardMarkup::from_str_items(inline_keyboard),
-                            ReceiveActionModif { strategy, index },
-                        )
-                    }
+                    Some(action) => (
+                        format!("{}: {}", data, action),
+                        keyboard::edit_action(index, strategy.actions()),
+                        ReceiveActionModif { strategy, index },
+                    ),
                     _ => return wrong_button(bot, query).await,
                 }
             }
@@ -177,7 +165,7 @@ pub async fn receive_delete_confirm(
     (mut strategy, index): (Strategy, usize),
 ) -> Result<(), RequestError> {
     if let Some((data, msg)) = query.data.as_ref().zip(query.message.as_ref()) {
-        match data.as_str() {
+        let state = match data.as_str() {
             YES => {
                 strategy.actions_mut().remove(index);
 
@@ -188,16 +176,31 @@ pub async fn receive_delete_confirm(
 
                 strategies.add(strategy);
 
-                let _ = dialogue.reset().await;
-            }
-            NO => return cancel(bot, query, dialogue).await,
-            _ => return wrong_button(bot, query).await,
-        }
-    }
+                bot.answer_callback_query(query.id)
+                    .text("Action has been deleted")
+                    .await?;
 
-    bot.answer_callback_query(query.id)
-        .text("Action has been deleted")
-        .await?;
+                Default::default()
+            }
+            NO => match strategy.actions().get(index) {
+                Some(action) => {
+                    bot.edit_message_text(
+                        msg.chat().id,
+                        msg.id(),
+                        format!("{}: {}", index + 1, action),
+                    )
+                    .reply_markup(keyboard::edit_action(index, strategy.actions()))
+                    .await?;
+
+                    State::Strategy(ActionState(ReceiveActionModif { strategy, index }))
+                }
+                _ => return cancel(bot, query, dialogue).await,
+            },
+            _ => return wrong_button(bot, query).await,
+        };
+
+        let _ = dialogue.update(state).await;
+    }
 
     Ok(())
 }

@@ -4,8 +4,9 @@ use crate::{
     kucoin::{account::AccountType, Lending, SpotTrading},
     strategies::{strategy::Actions, Strategies},
     telegram::constants::{
-        ADD_ACTION, BACK_TO_STRATEGIES, BUY, CANCEL, CREATE_STRATEGY, DELETE_STRATEGY,
-        EDIT_ACTIONS, EDIT_CONDITION, EDIT_NAME, EDIT_PRODUCT, LEND, REDEEM, SELL, TRANSFER,
+        ADD_ACTION, BACK_TO_ACTIONS, BACK_TO_STRATEGIES, BUY, CANCEL, CREATE_STRATEGY,
+        DELETE_ACTION, DELETE_STRATEGY, EDIT_ACTIONS, EDIT_CONDITION, EDIT_NAME, EDIT_PRODUCT,
+        LEND, MOVE_DOWN, MOVE_UP, REDEEM, SELL, TRANSFER,
     },
 };
 
@@ -66,6 +67,20 @@ pub fn choose_action_number(actions: &Actions) -> InlineKeyboardMarkup {
         vec![ADD_ACTION.to_string()],
         vec![CANCEL.to_string()],
     ])
+}
+
+pub fn edit_action(index: usize, actions: &Actions) -> InlineKeyboardMarkup {
+    let mut inline_keyboard = [vec![], vec![DELETE_ACTION, BACK_TO_ACTIONS]];
+
+    if index > 0 {
+        inline_keyboard[0].push(MOVE_UP);
+    }
+
+    if index < actions.len() - 1 {
+        inline_keyboard[0].push(MOVE_DOWN);
+    }
+
+    InlineKeyboardMarkup::from_str_items(inline_keyboard)
 }
 
 pub fn choose_action() -> InlineKeyboardMarkup {
