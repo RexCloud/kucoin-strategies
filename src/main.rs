@@ -11,7 +11,7 @@ async fn main() {
     let kucoin: KuCoin = Default::default();
     let strategies: Strategies = Default::default();
 
-    kucoin.clone().run();
+    kucoin.clone().run(bot.clone());
     strategies.clone().run(bot.clone(), kucoin.clone());
     telegram::run(bot, kucoin, strategies).await;
 }

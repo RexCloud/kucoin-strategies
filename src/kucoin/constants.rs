@@ -1,5 +1,7 @@
 pub const BASE_URL: &str = "https://api.kucoin.com";
 
+pub const ANNOUNCEMENTS: &str = "/api/v3/announcements";
+
 pub const ACCOUNTS: &str = "/api/v1/accounts";
 pub const TRANSFER: &str = "/api/v3/accounts/universal-transfer";
 

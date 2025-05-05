@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
     fmt,
-    str::FromStr,
     sync::{Arc, Mutex, MutexGuard},
 };
+use strum::{Display, EnumString, VariantNames};
 use tracing::error;
 
 use crate::kucoin::{constants::ACCOUNTS, task::Poller, Request};
@@ -126,49 +126,33 @@ impl fmt::Display for Account {
     }
 }
 
-#[derive(Debug, Default, Clone, Copy, Serialize, Deserialize, Eq, Hash, PartialEq)]
+#[derive(
+    Debug,
+    Default,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    VariantNames,
+    Display,
+    Serialize,
+    Deserialize,
+)]
 #[serde(rename_all(serialize = "SCREAMING_SNAKE_CASE", deserialize = "snake_case"))]
+#[strum(serialize_all = "title_case")]
 pub enum AccountType {
     #[default]
+    #[strum(to_string = "Funding")]
     Main,
+    #[strum(to_string = "Trading")]
     Trade,
+    #[strum(to_string = "Futures")]
     Contract,
     Margin,
     Isolated,
     MarginV2,
     IsolatedV2,
     Option,
-}
-
-impl FromStr for AccountType {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "Funding" => Ok(AccountType::Main),
-            "Trading" => Ok(AccountType::Trade),
-            "Futures" => Ok(AccountType::Contract),
-            "Margin" => Ok(AccountType::Margin),
-            "Isolated" => Ok(AccountType::Isolated),
-            "Margin V2" => Ok(AccountType::MarginV2),
-            "Isolated V2" => Ok(AccountType::IsolatedV2),
-            "Option" => Ok(AccountType::Option),
-            _ => Err(()),
-        }
-    }
-}
-
-impl fmt::Display for AccountType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Main => write!(f, "Funding"),
-            Self::Trade => write!(f, "Trading"),
-            Self::Contract => write!(f, "Futures"),
-            Self::Margin => write!(f, "Margin"),
-            Self::Isolated => write!(f, "Isolated"),
-            Self::MarginV2 => write!(f, "Margin V2"),
-            Self::IsolatedV2 => write!(f, "Isolated V2"),
-            Self::Option => write!(f, "Option"),
-        }
-    }
 }

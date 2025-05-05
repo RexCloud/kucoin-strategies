@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::fmt;
+use strum::Display;
 
 use crate::kucoin::{constants::SPOT_ORDER, Request};
 
@@ -37,38 +37,22 @@ pub struct Add {
     funds: Option<String>,
 }
 
-#[derive(Debug, Default, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Copy, Display, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "UPPERCASE")]
 pub enum Type {
     #[default]
     Limit,
     Market,
 }
 
-impl fmt::Display for Type {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Type::Limit => write!(f, "LIMIT"),
-            Type::Market => write!(f, "MARKET"),
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Copy, Display, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "UPPERCASE")]
 pub enum Side {
     #[default]
     Buy,
     Sell,
-}
-
-impl fmt::Display for Side {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Side::Buy => write!(f, "BUY"),
-            Side::Sell => write!(f, "SELL"),
-        }
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

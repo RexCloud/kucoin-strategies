@@ -5,7 +5,9 @@ use std::{
     sync::{Arc, Mutex, MutexGuard},
     time::Duration,
 };
-use teloxide::{payloads::SendMessageSetters, prelude::Requester, types::ParseMode::Html, Bot};
+use teloxide::{
+    payloads::SendMessageSetters as _, prelude::Requester as _, types::ParseMode::Html, Bot,
+};
 use tracing::error;
 
 use crate::kucoin::{

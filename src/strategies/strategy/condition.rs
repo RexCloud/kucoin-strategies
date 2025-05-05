@@ -1,16 +1,9 @@
-use std::fmt;
+use strum::Display;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Display)]
 pub enum Condition {
+    #[strum(to_string = "&gt {0}")]
     GreaterThan(f64),
+    #[strum(to_string = "&lt {0}")]
     LessThan(f64),
-}
-
-impl fmt::Display for Condition {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::GreaterThan(value) => write!(f, "&gt {value}"),
-            Self::LessThan(value) => write!(f, "&lt {value}"),
-        }
-    }
 }

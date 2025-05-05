@@ -1,6 +1,7 @@
+pub const NOTIFICATIONS: &str = "Notifications";
 pub const BALANCE: &str = "Balance";
-pub const PAIRS: &str = "Pairs";
 pub const LENDING: &str = "Lending";
+pub const PAIRS: &str = "Pairs";
 pub const SPOT_TRADING: &str = "Spot Trading";
 
 pub const STRATEGIES: &str = "Strategies";

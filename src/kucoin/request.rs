@@ -7,34 +7,49 @@ use reqwest::{
 };
 use serde::{de::DeserializeOwned, Serialize};
 use sha2::Sha256;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::{
+    borrow::Cow,
+    time::{SystemTime, UNIX_EPOCH},
+};
 
 use crate::kucoin::{constants::BASE_URL, Response};
 
 pub struct Request {
     method: Method,
-    path: &'static str,
+    path: Cow<'static, str>,
     json: String,
 }
 
 impl Request {
-    fn new(method: Method, path: &'static str) -> Self {
+    fn new<S>(method: Method, path: S) -> Self
+    where
+        S: Into<Cow<'static, str>>,
+    {
         Self {
             method,
-            path,
+            path: path.into(),
             json: Default::default(),
         }
     }
 
-    pub fn get(path: &'static str) -> Self {
+    pub fn get<S>(path: S) -> Self
+    where
+        S: Into<Cow<'static, str>>,
+    {
         Request::new(Method::GET, path)
     }
 
-    pub fn post(path: &'static str) -> Self {
+    pub fn post<S>(path: S) -> Self
+    where
+        S: Into<Cow<'static, str>>,
+    {
         Request::new(Method::POST, path)
     }
 
-    pub fn delete(path: &'static str) -> Self {
+    pub fn delete<S>(path: S) -> Self
+    where
+        S: Into<Cow<'static, str>>,
+    {
         Request::new(Method::DELETE, path)
     }
 
@@ -47,7 +62,7 @@ impl Request {
     }
 
     pub async fn send<T: DeserializeOwned>(self, client: &Client) -> Result<T> {
-        let url = BASE_URL.to_string() + self.path;
+        let url = BASE_URL.to_string() + &self.path;
         let headers = (&self).into();
 
         let mut builder = client.request(self.method, url).headers(headers);
@@ -71,7 +86,7 @@ impl From<&Request> for HeaderMap {
             .as_millis()
             .to_string();
 
-        let str_to_sign = timestamp.clone() + req.method.as_str() + req.path + &req.json;
+        let str_to_sign = timestamp.clone() + req.method.as_str() + &req.path + &req.json;
 
         let mut signature: Hmac<Sha256> =
             Hmac::new_from_slice(env!("API_SECRET").as_bytes()).unwrap();

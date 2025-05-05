@@ -1,10 +1,14 @@
 use reqwest::{header::HeaderMap, Client, ClientBuilder};
 use std::{collections::HashMap, time::Duration};
+use teloxide::Bot;
 
 mod constants;
 
 pub mod account;
 pub use account::Accounts;
+
+pub mod announcements;
+pub use announcements::Announcements;
 
 pub mod lending;
 pub use lending::Lending;
@@ -23,6 +27,7 @@ use task::{Poller as _, Spawnable as _};
 
 #[derive(Debug, Clone)]
 pub struct KuCoin {
+    announcements: Announcements,
     accounts: Accounts,
     lending: Lending,
     spot: SpotTrading,
@@ -39,6 +44,7 @@ impl Default for KuCoin {
         );
 
         KuCoin {
+            announcements: Default::default(),
             accounts: Default::default(),
             lending: Default::default(),
             spot: Default::default(),
@@ -51,6 +57,10 @@ impl Default for KuCoin {
 }
 
 impl KuCoin {
+    pub fn announcements(&self) -> &Announcements {
+        &self.announcements
+    }
+
     pub fn accounts(&self) -> &Accounts {
         &self.accounts
     }
@@ -67,7 +77,11 @@ impl KuCoin {
         &self.client
     }
 
-    pub fn run(self) {
+    pub fn run(self, bot: Bot) {
+        (self.announcements().clone(), bot)
+            .poller(self.client().clone(), self.announcements().period())
+            .spawn();
+
         self.accounts()
             .clone()
             .poller(self.client().clone(), Duration::from_secs(15))

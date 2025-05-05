@@ -7,6 +7,7 @@ use teloxide::{
 };
 
 use crate::{
+    kucoin::KuCoin,
     strategies::{strategy::Strategy, Strategies},
     telegram::{
         constants::{
@@ -17,6 +18,7 @@ use crate::{
     },
 };
 
+pub mod announcements;
 pub mod lending;
 pub mod pair;
 pub mod strategy;
@@ -26,6 +28,7 @@ pub async fn handler(
     bot: Bot,
     query: CallbackQuery,
     dialogue: Dialogue<State, InMemStorage<State>>,
+    kucoin: KuCoin,
     strategies: Strategies,
 ) -> Result<(), RequestError> {
     if let Some((data, msg)) = query.data.as_ref().zip(query.message.as_ref()) {
@@ -53,7 +56,15 @@ pub async fn handler(
                     }
                 }
                 BACK_TO_STRATEGIES => return back_to_strategies(bot, query, strategies).await,
-                _ => return strategy::edit_by_name(bot, query, strategies).await,
+                _ => {
+                    if let Some(strategy) = strategies.get(data) {
+                        return strategy::edit_by_name(bot, query, strategy).await;
+                    } else if let Ok(r#type) = data.parse() {
+                        return announcements::toggle(bot, query, kucoin, r#type).await;
+                    } else {
+                        return wrong_button(bot, query).await;
+                    }
+                }
             },
             _ => match data.as_str() {
                 CANCEL => return cancel(bot, query, dialogue).await,

@@ -1,7 +1,8 @@
+use strum::VariantNames;
 use teloxide::types::{InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, KeyboardMarkup};
 
 use crate::{
-    kucoin::{account::AccountType, Lending, SpotTrading},
+    kucoin::{account::AccountType, announcements::AnnouncementType, Lending, SpotTrading},
     strategies::{strategy::Actions, Strategies},
     telegram::constants::{
         ADD_ACTION, BACK_TO_ACTIONS, BACK_TO_STRATEGIES, BUY, CANCEL, CREATE_STRATEGY,
@@ -59,6 +60,15 @@ pub fn edit_strategy() -> InlineKeyboardMarkup {
     ])
 }
 
+pub fn announcement_types() -> InlineKeyboardMarkup {
+    InlineKeyboardMarkup::from_str_items(
+        AnnouncementType::VARIANTS
+            .chunks(2)
+            .map(<_>::into_iter)
+            .map(<_>::copied),
+    )
+}
+
 pub fn choose_action_number(actions: &Actions) -> InlineKeyboardMarkup {
     InlineKeyboardMarkup::from_str_items([
         (1..actions.len() + 1)
@@ -94,22 +104,13 @@ pub fn choose_action() -> InlineKeyboardMarkup {
 
 pub fn choose_account_type(skip: Option<&AccountType>) -> InlineKeyboardMarkup {
     let mut inline_keyboard = [
-        vec![
-            AccountType::Main.to_string(),
-            AccountType::Trade.to_string(),
-            AccountType::Contract.to_string(),
-        ],
-        vec![
-            AccountType::Margin.to_string(),
-            AccountType::Isolated.to_string(),
-            AccountType::MarginV2.to_string(),
-            AccountType::IsolatedV2.to_string(),
-        ],
-        vec![AccountType::Option.to_string()],
-        vec![CANCEL.to_string()],
+        AccountType::VARIANTS[..3].to_vec(),
+        AccountType::VARIANTS[3..7].to_vec(),
+        AccountType::VARIANTS[7..].to_vec(),
+        vec![CANCEL],
     ];
 
-    if let Some(skip) = skip.map(|r#type| r#type.to_string()) {
+    if let Some(skip) = skip.map(<_>::to_string) {
         for row in inline_keyboard.iter_mut() {
             row.retain(|text| *text != skip);
         }

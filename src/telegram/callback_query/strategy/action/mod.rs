@@ -1,7 +1,9 @@
 use std::vec;
 use teloxide::{
     dispatching::dialogue::InMemStorage,
-    payloads::{AnswerCallbackQuerySetters, EditMessageTextSetters as _, SendMessageSetters as _},
+    payloads::{
+        AnswerCallbackQuerySetters as _, EditMessageTextSetters as _, SendMessageSetters as _,
+    },
     prelude::{Dialogue, Requester as _},
     types::{CallbackQuery, InlineKeyboardMarkup, ParseMode::Html},
     Bot, RequestError,

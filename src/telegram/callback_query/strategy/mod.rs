@@ -116,18 +116,13 @@ pub async fn back_to_strategies(
 pub async fn edit_by_name(
     bot: Bot,
     query: CallbackQuery,
-    strategies: Strategies,
+    strategy: Strategy,
 ) -> Result<(), RequestError> {
-    if let Some((name, msg)) = query.data.as_ref().zip(query.message.as_ref()) {
-        match strategies.get(name) {
-            Some(strategy) => {
-                bot.edit_message_text(msg.chat().id, msg.id(), strategy.to_string())
-                    .reply_markup(keyboard::edit_strategy())
-                    .parse_mode(Html)
-                    .await?;
-            }
-            None => return wrong_button(bot, query).await,
-        }
+    if let Some(msg) = query.message {
+        bot.edit_message_text(msg.chat().id, msg.id(), strategy.to_string())
+            .reply_markup(keyboard::edit_strategy())
+            .parse_mode(Html)
+            .await?;
     }
 
     bot.answer_callback_query(query.id).await?;

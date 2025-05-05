@@ -1,7 +1,7 @@
 use teloxide::{
     dispatching::dialogue::InMemStorage,
     payloads::SendMessageSetters as _,
-    prelude::{Dialogue, Requester as _},
+    prelude::{Dialogue, Request, Requester as _},
     types::{KeyboardMarkup, Message, ParseMode::Html},
     Bot, RequestError,
 };
@@ -10,7 +10,7 @@ use crate::{
     kucoin::KuCoin,
     strategies::Strategies,
     telegram::{
-        constants::{BALANCE, LENDING, PAIRS, STRATEGIES},
+        constants::{BALANCE, LENDING, NOTIFICATIONS, PAIRS, STRATEGIES},
         keyboard::{self, KeyboardMarkupBuilder as _},
         State,
     },
@@ -32,6 +32,14 @@ pub async fn handler(
             STRATEGIES => {
                 bot.send_message(msg.chat.id, strategies.to_string())
                     .reply_markup(keyboard::strategies(&strategies))
+                    .await?;
+            }
+            NOTIFICATIONS => {
+                let text = "Toggle notifications for different announcement types:";
+
+                bot.send_message(msg.chat.id, text)
+                    .reply_markup(keyboard::announcement_types())
+                    .send()
                     .await?;
             }
             BALANCE => {
@@ -60,13 +68,17 @@ pub async fn handler(
             }
             _ => {
                 let text = format!(
-                    "<b>{STRATEGIES}</b> — create and view strategies\n\
+                    "<b>{STRATEGIES}</b> — create and manage strategies\n\
+                    <b>{NOTIFICATIONS}</b> — customize notifications\n\
                     <b>{BALANCE}</b> — show overall balance\n\
-                    <b>{PAIRS}</b> — show spot pairs info\n\
-                    <b>{LENDING}</b> — show lending currencies info"
+                    <b>{LENDING}</b> — show lending currencies info\n\
+                    <b>{PAIRS}</b> — show spot pairs info"
                 );
 
-                let keyboard = [[STRATEGIES, BALANCE], [PAIRS, LENDING]];
+                let keyboard = [
+                    vec![STRATEGIES, NOTIFICATIONS],
+                    vec![BALANCE, LENDING, PAIRS],
+                ];
 
                 let markup = KeyboardMarkup::from_str_items(keyboard)
                     .persistent()
