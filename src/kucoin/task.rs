@@ -19,6 +19,7 @@ pub trait Poller {
     fn poll(&self, client: &Client) -> impl Future<Output = ()> + Send;
 }
 
+#[must_use = "tasks do nothing unless you `spawn` them"]
 pub trait Spawnable {
     fn spawn(self);
 }
